@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recipe Finder</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <div class="container">
+    <header class="header">
+      <h1>Recipe Finder</h1>
+      <p class="tagline">Real food doesn't have ingredients, real food is ingredients.</p>
+    </header>
+
+    <div class="search">
+      <input type="text" class="search-input" placeholder="Enter an ingredient" id="search-input">
+      <button type="button" class="search-btn" id="search-btn">Search</button>
+    </div>
+
+    <div class="results" id="meal"></div>
+
+    <div class="meal-details" id="meal-details">
+      <button type="button" class="close-btn" id="recipe-close-btn">&times;</button>
+      <h2 class="recipe-title"></h2>
+      <div class="details-content"></div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
