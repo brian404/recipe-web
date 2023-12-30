@@ -1,85 +1,104 @@
-document.addEventListener('DOMContentLoaded', () => {
-  const searchBtn = document.getElementById('search-btn');
-  const mealContainer = document.getElementById('meal');
-  const detailsContainer = document.getElementById('meal-details');
-  const closeBtn = document.getElementById('recipe-close-btn');
+const searchBtn = document.getElementById('search-btn');
+const mealList = document.getElementById('meal');
+const mealDetailsContent = document.querySelector('.meal-details-content');
+const recipeCloseBtn = document.getElementById('recipe-close-btn');
 
-  searchBtn.addEventListener('click', () => {
-    const searchInput = document.getElementById('search-input').value;
+// Event listeners
+searchBtn.addEventListener('click', getMealList);
+mealList.addEventListener('click', getMealRecipe);
+recipeCloseBtn.addEventListener('click', () => {
+    mealDetailsContent.parentElement.classList.remove('showRecipe');
+});
 
-    if (searchInput.trim()) {
-      fetch(`https://www.themealdb.com/api/json/v1/1/search.php?s=${searchInput}`)
+// Load random recipes on page load
+window.addEventListener('load', () => {
+    getRandomRecipes();
+});
+
+// Get random recipes
+function getRandomRecipes() {
+    fetch('https://www.themealdb.com/api/json/v1/1/random.php')
         .then(response => response.json())
         .then(data => {
-          displayMeals(data.meals);
+            displayMeals(data.meals);
         });
-    } else {
-      // Show random recipes if no input is provided
-      fetch('https://www.themealdb.com/api/json/v1/1/random.php')
+}
+
+// Get meal list that matches with the ingredients
+function getMealList() {
+    let searchInputTxt = document.getElementById('search-input').value.trim();
+    
+    if (searchInputTxt === '') {
+        getRandomRecipes(); // Load random recipes if no input
+        return;
+    }
+
+    fetch(`https://www.themealdb.com/api/json/v1/1/filter.php?i=${searchInputTxt}`)
         .then(response => response.json())
         .then(data => {
-          displayMeals(data.meals);
+            if (data.meals) {
+                displayMeals(data.meals);
+            } else {
+                displayNotFound();
+            }
         });
-    }
-  });
+}
 
-  function displayMeals(meals) {
-    if (!meals) {
-      mealContainer.innerHTML = '<p class="notFound">No meals found. Please try again.</p>';
-      return;
-    }
-
-    mealContainer.innerHTML = meals
-      .map(
-        meal => `
-        <div class="meal-item" data-id="${meal.idMeal}">
-          <div class="meal-img">
-            <img src="${meal.strMealThumb}" alt="${meal.strMeal}">
-          </div>
-          <div class="meal-name">
-            <h3>${meal.strMeal}</h3>
-          </div>
-          <button class="recipe-btn">Get Recipe</button>
-        </div>
-      `
-      )
-      .join('');
-
-    const recipeBtns = document.querySelectorAll('.recipe-btn');
-    recipeBtns.forEach(btn => {
-      btn.addEventListener('click', showRecipe);
+// Display meals in the meal list
+function displayMeals(meals) {
+    let html = '';
+    meals.forEach(meal => {
+        html += `
+            <div class="meal-item" data-id="${meal.idMeal}">
+                <div class="meal-img">
+                    <img src="${meal.strMealThumb}" alt="food">
+                </div>
+                <div class="meal-name">
+                    <h3>${meal.strMeal}</h3>
+                    <a href="#" class="recipe-btn">Get Recipe</a>
+                </div>
+            </div>
+        `;
     });
-  }
 
-  function showRecipe() {
-    const mealId = this.parentElement.getAttribute('data-id');
-    fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${mealId}`)
-      .then(response => response.json())
-      .then(data => {
-        displayMealDetails(data.meals[0]);
-      });
-  }
+    mealList.classList.remove('notFound');
+    mealList.innerHTML = html;
+}
 
-  function displayMealDetails(meal) {
-    detailsContainer.innerHTML = `
-      <button class="close-btn" id="recipe-close-btn">&times;</button>
-      <div class="details-content">
+// Display not found message
+function displayNotFound() {
+    mealList.innerHTML = "Sorry, we didn't find any meal!";
+    mealList.classList.add('notFound');
+}
+
+// Get recipe of the meal
+function getMealRecipe(e) {
+    e.preventDefault();
+    if (e.target.classList.contains('recipe-btn')) {
+        let mealItem = e.target.parentElement.parentElement;
+        fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${mealItem.dataset.id}`)
+            .then(response => response.json())
+            .then(data => mealRecipeModal(data.meals));
+    }
+}
+
+// Create a modal
+function mealRecipeModal(meal) {
+    meal = meal[0];
+    let html = `
         <h2 class="recipe-title">${meal.strMeal}</h2>
         <p class="recipe-category">${meal.strCategory}</p>
-        <p class="recipe-instruct">${meal.strInstructions}</p>
+        <div class="recipe-instruct">
+            <h3>Instructions:</h3>
+            <p>${meal.strInstructions}</p>
+        </div>
         <div class="recipe-meal-img">
-          <img src="${meal.strMealThumb}" alt="${meal.strMeal}">
+            <img src="${meal.strMealThumb}" alt="">
         </div>
         <div class="recipe-link">
-          <a href="${meal.strYoutube}" target="_blank">Watch on YouTube</a>
+            <a href="${meal.strYoutube}" target="_blank">Watch Video</a>
         </div>
-      </div>
     `;
-
-    detailsContainer.style.display = 'block';
-
-    closeBtn.addEventListener('click', () => {
-      detailsContainer.style.display = 'none';
-    });
-  }
-});
+    mealDetailsContent.innerHTML = html;
+    mealDetailsContent.parentElement.classList.add('showRecipe');
+}
