@@ -15,12 +15,15 @@ function getMealList() {
     let searchInputTxt = document.getElementById('search-input').value.trim();
     mealList.innerHTML = ''; // Clear previous results
     mealList.classList.remove('notFound');
-    showLoading(); // Show loading indicator
 
     fetch(`https://www.themealdb.com/api/json/v1/1/filter.php?i=${searchInputTxt}`)
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
         .then(data => {
-            hideLoading(); // Hide loading indicator
             let html = "";
             if (data.meals) {
                 data.meals.forEach(meal => {
@@ -44,22 +47,8 @@ function getMealList() {
             mealList.innerHTML = html;
         })
         .catch(error => {
-            hideLoading(); // Hide loading indicator in case of an error
             console.error('Error fetching data:', error);
         });
-}
-
-// Show loading indicator
-function showLoading() {
-    mealList.innerHTML = '<div class="loading">Loading...</div>';
-}
-
-// Hide loading indicator
-function hideLoading() {
-    const loadingDiv = mealList.querySelector('.loading');
-    if (loadingDiv) {
-        loadingDiv.remove();
-    }
 }
 
 // get recipe of the meal
@@ -68,8 +57,16 @@ function getMealRecipe(e) {
     if (e.target.classList.contains('recipe-btn')) {
         let mealItem = e.target.parentElement.parentElement;
         fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${mealItem.dataset.id}`)
-            .then(response => response.json())
-            .then(data => mealRecipeModal(data.meals));
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => mealRecipeModal(data.meals))
+            .catch(error => {
+                console.error('Error fetching recipe data:', error);
+            });
     }
 }
 
@@ -93,4 +90,4 @@ function mealRecipeModal(meal) {
     `;
     mealDetailsContent.innerHTML = html;
     mealDetailsContent.parentElement.classList.add('showRecipe');
-                 }
+        }
