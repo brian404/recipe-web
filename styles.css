@@ -5,7 +5,6 @@
   box-sizing: border-box;
 }
 
-/* Background image styles */
 body {
   background-image: url('bg.jpg');
   background-size: cover;
@@ -53,7 +52,7 @@ body {
 }
 
 .search-btn {
-  flex: 1;
+  flex: 0.5; /* Adjusted width */
   background: linear-gradient(to right, #4CAF50, #45a049); /* Green gradient */
   color: #fff;
   border: none;
@@ -115,12 +114,6 @@ body {
   max-width: 600px;
 }
 
-.details-content {
-  max-height: 400px; /* Adjust the maximum height as needed */
-  overflow-y: auto;
-  padding: 20px;
-}
-
 .close-btn {
   position: absolute;
   top: 10px;
@@ -130,6 +123,19 @@ body {
   background: none;
   border: none;
   cursor: pointer;
+}
+
+.details-content {
+  padding: 20px;
+}
+
+.details-content p {
+  margin-bottom: 15px;
+}
+
+.details-content img {
+  max-width: 100%;
+  height: auto;
 }
 
 .recipe-btn {
@@ -148,5 +154,4 @@ body {
 
 .recipe-btn:hover {
   background: #2980b9; /* Darker shade for hover effect */
-    }
-
+}

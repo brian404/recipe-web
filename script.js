@@ -69,7 +69,6 @@ function getMealRecipe(e) {
 
 // Create a modal
 function mealRecipeModal(meal) {
-    console.log(meal);
     meal = meal[0];
     let html = `
         <h2 class="recipe-title">${meal.strMeal}</h2>
@@ -92,4 +91,4 @@ function mealRecipeModal(meal) {
 // Close the meal recipe modal
 function closeMealRecipe() {
     mealDetailsContent.parentElement.classList.remove('showRecipe');
-                                     }
+}
